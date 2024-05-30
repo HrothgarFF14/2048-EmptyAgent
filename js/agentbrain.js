@@ -1,7 +1,7 @@
 // helper functions
 function randomInt(n) {
     return Math.floor(Math.random() * n);
-};
+}
 
 class AgentBrain {
     constructor(gameEngine) {
@@ -9,12 +9,12 @@ class AgentBrain {
         this.previousState = gameEngine.grid.serialize();
         this.reset();
         this.score = 0;
-    };
+    }
 
     reset() {
         this.score = 0;
         this.grid = new Grid(this.previousState.size, this.previousState.cells);
-    };
+    }
 
     // Adds a tile in a random position
     addRandomTile() {
@@ -24,13 +24,23 @@ class AgentBrain {
 
             this.grid.insertTile(tile);
         }
-    };
+    }
+
+    // Adds a tile at a specific position
+    addTileAtPosition(position, value) {
+        if (this.grid.cellsAvailable()) {
+            var tile = new Tile(position, value);
+            this.grid.insertTile(tile);
+        } else {
+            console.log("Cell not available");
+        }
+    }
 
     moveTile(tile, cell) {
         this.grid.cells[tile.x][tile.y] = null;
         this.grid.cells[cell.x][cell.y] = tile;
         tile.updatePosition(cell);
-    };
+    }
 
     // Move tiles on the grid in the specified direction
     move(direction) {
@@ -70,7 +80,6 @@ class AgentBrain {
 
                         // Update the score
                         self.score += merged.value;
-
                     } else {
                         self.moveTile(tile, positions.farthest);
                     }
@@ -86,20 +95,20 @@ class AgentBrain {
             this.addRandomTile();
         }
         return moved;
-    };
+    }
 
     // Get the vector representing the chosen direction
     getVector(direction) {
         // Vectors representing tile movement
         var map = {
             0: { x: 0, y: -1 }, // Up
-            1: { x: 1, y: 0 },  // Right
-            2: { x: 0, y: 1 },  // Down
-            3: { x: -1, y: 0 }   // Left
+            1: { x: 1, y: 0 }, // Right
+            2: { x: 0, y: 1 }, // Down
+            3: { x: -1, y: 0 }, // Left
         };
 
         return map[direction];
-    };
+    }
 
     // Build a list of positions to traverse in the right order
     buildTraversals(vector) {
@@ -115,7 +124,7 @@ class AgentBrain {
         if (vector.y === 1) traversals.y = traversals.y.reverse();
 
         return traversals;
-    };
+    }
 
     findFarthestPosition(cell, vector) {
         var previous;
@@ -124,16 +133,15 @@ class AgentBrain {
         do {
             previous = cell;
             cell = { x: previous.x + vector.x, y: previous.y + vector.y };
-        } while (this.grid.withinBounds(cell) &&
-            this.grid.cellAvailable(cell));
+        } while (this.grid.withinBounds(cell) && this.grid.cellAvailable(cell));
 
         return {
             farthest: previous,
-            next: cell // Used to check if a merge is required
+            next: cell, // Used to check if a merge is required
         };
-    };
+    }
 
     positionsEqual(first, second) {
         return first.x === second.x && first.y === second.y;
-    };
+    }
 }
